@@ -1,0 +1,7 @@
+{
+  "name": "Nutricheck - AI 복약지도 매니저",
+  "description": "사용자의 투약 현황을 관리하고 AI를 통해 약물 간 상호작용 및 맞춤 건강 조언을 제공하는 스마트 복약지도 애플리케이션입니다.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
