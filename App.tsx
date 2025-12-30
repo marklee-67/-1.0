@@ -21,7 +21,11 @@ const App: React.FC = () => {
   const [ocrResult, setOcrResult] = useState<any>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowReminder(true), 15000);
+    // 15초 후 복약 알림 팝업 시뮬레이션
+    const timer = setTimeout(() => {
+      // 'home' 혹은 'report', 'pillbox', 'mypage' 등 메인 탭에 있을 때만 알림을 표시하도록 변경 (레이어 겹침 방지)
+      setShowReminder(true);
+    }, 15000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -32,6 +36,8 @@ const App: React.FC = () => {
 
   const handleStartTaking = (item: DailyRecordItem) => {
     setActiveTakingItem(item);
+    // 복약 확인을 시작할 때는 기존의 다른 팝업을 닫음
+    setShowReminder(false);
     navigateTo('pill-verify');
   };
 
@@ -48,7 +54,6 @@ const App: React.FC = () => {
       };
     });
     
-    // 유저 포인트 및 프로그레스 업데이트
     setUser(prev => ({
       ...prev,
       points: prev.points + 50,
@@ -71,13 +76,24 @@ const App: React.FC = () => {
     }
   };
 
+  // 모달성 뷰들이 활성화되어 있는지 체크
+  const isHighPriorityViewActive = ['register', 'ocr-result', 'pill-verify'].includes(currentView);
+
   return (
     <div className="flex justify-center min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="relative w-full max-w-md bg-white dark:bg-[#101922] shadow-2xl overflow-hidden flex flex-col h-screen border-x border-gray-100 dark:border-gray-800">
         <div className="flex-1 overflow-y-auto no-scrollbar scroll-smooth">
           {renderView()}
         </div>
-        {showReminder && <ReminderPopup onClose={() => setShowReminder(false)} />}
+
+        {/* 
+          이미 카메라를 사용 중이거나 분석 중인 고우선순위 뷰(register, ocr-result, pill-verify)가 떠있다면 
+          복약 알림 팝업(ReminderPopup)이 렌더링되지 않도록 하여 레이어 겹침을 방지함.
+        */}
+        {showReminder && !isHighPriorityViewActive && (
+          <ReminderPopup onClose={() => setShowReminder(false)} />
+        )}
+
         {['home', 'report', 'pillbox', 'mypage'].includes(currentView) && (
           <nav className="shrink-0 bg-white/90 dark:bg-[#1A2633]/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 safe-pb pt-2 z-40">
             <div className="grid grid-cols-4 h-16">
